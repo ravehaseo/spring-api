@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+	
+	<!-- Hibernate transaction management -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+
+	<!-- Custom database (tables, columns) naming strategy. Used when Hibernate populating database -->
+	<beans:bean id="NamingImplicit" class="com.maybank.sample.config.CustomNamingStrategyImplicit" />
+	<beans:bean id="NamingPhysical" class="com.maybank.sample.config.CustomNamingStrategyPhysical" />
+	
+	<!-- Data Source -->
+	<beans:bean id="dataSource" class="com.maybank.sample.config.CustomBoneConnectionPool" destroy-method="close">
+		<beans:property name="connectionTestStatement" value="select 1" />
+		<beans:property name="driverClass" value="${jdbc.driverClassName}" />
+		<beans:property name="jdbcUrl" value="${jdbc.url}" />
+		<beans:property name="username" value="${jdbc.username}" />
+		<beans:property name="password" value="${jdbc.password}" />
+		<beans:property name="idleConnectionTestPeriodInMinutes" value="1" />
+		<beans:property name="idleMaxAgeInMinutes" value="4" />
+
+		<beans:property name="maxConnectionsPerPartition" value="150" />
+		<beans:property name="minConnectionsPerPartition" value="5" />
+		<beans:property name="partitionCount" value="${jdbc.partitionCount}" />
+		<beans:property name="acquireIncrement" value="5" />
+		<beans:property name="statementsCacheSize" value="50" />
+		<beans:property name="releaseHelperThreads" value="3" />
+		<beans:property name="logStatementsEnabled" value="true" />
+	</beans:bean>
+
+	<!-- Hibernate SessionFactory -->
+	<beans:bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<beans:property name="dataSource" ref="dataSource"></beans:property>
+		<beans:property name="packagesToScan" ref="hibernatePackages"/>
+		<beans:property name="implicitNamingStrategy" ref="NamingImplicit" />
+		<beans:property name="physicalNamingStrategy" ref="NamingPhysical" />
+		<beans:property name="hibernateProperties">
+			<beans:props>
+				<beans:prop key="hibernate.dialect">${hibernate.dialect}</beans:prop>
+				<beans:prop key="hibernate.show_sql">${hibernate.show_sql}</beans:prop>
+				<beans:prop key="hibernate.format_sql">${hibernate.show_sql}</beans:prop>
+				<beans:prop key="hibernate.generate_statistics">${hibernate.generate_statistics}</beans:prop>
+				<beans:prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</beans:prop>
+				<beans:prop key="cache.provider_class">org.hibernate.cache.NoCacheProvider</beans:prop>
+				<beans:prop key="hibernate.default_batch_fetch_size">15</beans:prop>
+				<beans:prop key="hibernate.use_sql_comments">true</beans:prop>
+				<beans:prop key="hibernate.default-lazy">true</beans:prop>
+				<beans:prop key="hibernate.order_updates">true</beans:prop>
+				<beans:prop key="hibernate.autocommit">false</beans:prop>
+				<beans:prop key="hibernate.connection.CharSet">utf8</beans:prop>
+				<beans:prop key="hibernate.connection.characterEncoding">utf8</beans:prop>
+				<beans:prop key="hibernate.connection.useUnicode">true</beans:prop>
+				<beans:prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</beans:prop>
+				<beans:prop key="hibernate.jdbc.use_streams_for_binary">false</beans:prop>
+				<beans:prop key="hibernate.connection.isolation">4096</beans:prop>
+			</beans:props>
+		</beans:property>
+	</beans:bean>
+</beans:beans>

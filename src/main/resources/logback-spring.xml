@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+	<property name="CONSOLE_LOG_PATTERN"
+		value="%d{MM-dd HH:mm:ss.SSS} %5p [%10.10t] %logger{0}.%M:%L - %m%n%wex" />
+	<include
+		resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+	<appender name="ROLLING"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH:-logs/}${LOG_FILE:-maybank}.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${LOG_PATH:-logs/}%d{yyyy-MM-dd}/${LOG_FILE:-maybank}.%i.log.gz</fileNamePattern>			
+			<maxFileSize>10MB</maxFileSize>
+			<maxHistory>90</maxHistory>
+			<totalSizeCap>20GB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [${PID}] %5p [%10.10t] %logger{0} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="org.springframework.context" level="INFO" />
+	<logger name="org.springframework.core" level="INFO" />
+	<logger name="org.springframework.web" level="INFO" />
+	<logger name="org.springframework.beans" level="INFO" />
+	<logger name="org.springframework.data" level="INFO" />
+	<logger name="org.apache.tomcat" level="INFO" />
+	<logger name="com.jolbox.bonecp" level="INFO" />
+	<logger name="com.zaxxer.hikari" level="INFO" />
+
+	<logger name="org.apache.http" level="WARN" />
+	<logger name="net.sf.ehcache" level="WARN" />
+	<logger name="org.apache.velocity" level="WARN" />
+	<logger name="org.quartz" level="WARN" />
+	<logger name="org.hibernate" level="WARN" />
+		
+	<logger name="com.maybank" level="DEBUG" />
+	<springProfile name="tracelog">
+		<logger name="com.maybank" level="TRACE" />
+	</springProfile>
+	<springProfile name="debuglog">
+		<logger name="com.maybank" level="DEBUG" />
+	</springProfile>
+
+	<springProfile name="consolelog">
+		<root level="TRACE">
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+
+	<root level="INFO">
+		<appender-ref ref="ROLLING" />
+	</root>
+
+</configuration>
